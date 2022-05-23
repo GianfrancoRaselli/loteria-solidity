@@ -101,6 +101,7 @@ contract Loteria {
   //eventos
   event BoletoComprado(uint, address); // evento cuando se compra un boleto
   event BoletoGanador(uint); // evento del ganador
+  event TokensDevueltos(uint, address); // evento para devolver tokens
 
 
  // funcion para comprar boletos de loteria
@@ -158,9 +159,20 @@ contract Loteria {
     emit BoletoGanador(eleccion);
   }
 
-  // 
-  function a() public {
-    payable(msg.sender).transfer();
+  // devolucion de tokens
+  function devolverTokens(uint _numTokens) public {
+    // el numero de tokens a devolver debe ser mayor a 0
+    require(_numTokens > 0, "Necesitas devolver un numero positivo de tokens");
+
+    // el cliente debe tener los tokens que desea devolver
+    require(_numTokens <= misTokens(), "No tienes los tokens que deseas devolver");
+
+    // devolucion
+    token.autoTransfer(msg.sender, _numTokens);
+    payable(msg.sender).transfer(precioTokens(_numTokens));
+
+    // emision del evento
+    emit TokensDevueltos(_numTokens, msg.sender);
   }
 
 }
